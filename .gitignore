@@ -1,0 +1,13 @@
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+
+# run output lives in scratch, referenced from runs/manifest.jsonl
+*.log
+*.npz
+*.npy
+*.nc
+*.h5
+*.hdf5
+*.pkl
+*.zarr/

@@ -1,0 +1,31 @@
+# People working on things adjacent to this repository's experiments.
+#
+# A gate, not a courtesy list: before an experiment enters `smoke`, check it against these entries and record the date in
+# adjacency.checked. If there is overlap, record the roster id in adjacency.conflicts and coordinate first.
+
+roster:
+  - id: jcm-strat-truth-model
+    person: Susanne
+    topic: jcm-strat truth model (phases 1-23) and the JAX CAM-FV dycore port
+    status: active
+    keywords: [jcm-strat, truth model, nudging, gravity-wave drag, corpus, cesm-jax-dycore]
+    notes: >
+      Every JCM corpus here comes from her runs (p11a, p13). A change in the truth model invalidates corpus-level comparisons.
+      Her jobs share GPUs 0/1 and host RAM on the same box.
+
+  - id: jcm-transport-operator
+    person: Ali
+    topic: Learned 3-D tracer transport operator and the jcm_tracers_c1 corpus
+    status: active
+    keywords: [transport, tracer, age of air, advection, semi-lagrangian, operator]
+    notes: >
+      /data/jcm_transport_operator and /data/jcm_tracers_c1 are his. Anything coupling transport to emulated winds overlaps here.
+
+  - id: neural-jam
+    person: Duncan
+    topic: Neural-JAM (emulated radiation / aerosol optics / microphysics inside JAM), climate-analytics-lab/jcm-experiments#17
+    status: active
+    keywords: [emulator, radiation, rrtmgp, aerosol, mam4, optics, neural]
+    notes: >
+      Any learned radiation or aerosol component overlaps. Also see the roster in jcm-experiments for the cloud-emulator and
+      NN-bias-correction efforts.
