@@ -14,6 +14,7 @@ Do not hand-edit them.
 <!-- BEGIN:experiments -->
 | experiment | state | owner | issue | next action |
 | --- | --- | --- | --- | --- |
+| [PARADIS 25M free base on the p20bt (L95, Jucker + Hines) corpus, and why it dies](experiments/jcm-p20bt-free-base/EXPERIMENT.md) | analysis | shreyas |  | Decide how to carry the m=0 damping into training (a fixed m=0 vector-SH filt... |
 | [Boundary-forced arm: levels 9-62 with a replay-year troposphere (run or drop?)](experiments/jcm-boundary-forced/EXPERIMENT.md) | proposed | shreyas | [#8](../../issues/8) | Decide whether to run or drop now that fine-tuning stabilises the full column... |
 | [DAgger round 2 on G300's own drifted states](experiments/jcm-dagger-own-drift/EXPERIMENT.md) | proposed | shreyas | [#2](../../issues/2) | Write the preregistration (falsifier: out-of-sample fraction of the JCM corre... |
 | [Longer dycore-correction horizon (4-10 d) and cross-seed soups](experiments/jcm-dycore-horizon-soups/EXPERIMENT.md) | proposed | shreyas | [#4](../../issues/4) | Write the preregistration; price a 4-10 d dycore horizon with the p5 harness ... |
