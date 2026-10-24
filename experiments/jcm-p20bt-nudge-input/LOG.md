@@ -67,3 +67,21 @@
 - **Overfit with the DT loss:** 4 samples, lr 3e-4, from epoch 9. rms err/σ went 26 → 17 % in 600 steps, not to ~0, and ps
   oscillates between 13 and 165 %. Running 2000 steps at lr 1e-4 with a residual SH spectrum, to see whether the floor is
   representability (high-l) or optimisation.
+
+## 2026-10-24 ~10:10 UTC: gates, scorecard validation, first 2-yr stratospheric free run
+
+- **Unfiltered gate of D at step 5500** (1996, 4 ICs): all BAD. ICs 728, 1092 and 364 die at days 32, 92 and 212. IC 0
+  survives but with Tprof 49 K. **D training does not remove the instability.**
+- **Step-0 D with the gentle filter 36,8** (1.1 % truth damage at h16-73): 3 of 4 die (days 19/42/24). Only 36,4 (5.6 %
+  damage) stabilises. A filter cannot give both stability and the 1 % goal, so the mode has to be trained out.
+- **Scorecard validated** (strat_metrics_p20bt.py):
+  - truth vs truth is exact;
+  - 1995 truth scored as a model of 1996: QBO10 corr −0.84, QBO30 +0.02 (wrong phase), VX60N10 0.83,
+    h16-73 u/T bias 8.7 m/s / 1.35 K.
+- **Step-0 D + filter 36,4, 720-d free run from 1995-01-01** (logs_dyc/frD/step0vf364_1995_ic0.npz): survives, no growing
+  drift.
+  - QBO10/30 corr 1.00, std 0.98, reversals 2/2 and 1/1. This is structural, from the τ = 1 d QBO nudge, which truth has too.
+  - VX60N10 corr 0.88 (yr 2 0.76), std 0.94, SSW 3/3.
+  - VX60S10 0.98.
+  - Polar-cap T bias +1.2 / +1.2 / −1.3 K (10N / 50N / 10S).
+  - h16-73 u bias 3.4 → 2.0 m/s and T 1.5 → 1.7 K (first vs last 120 d).
