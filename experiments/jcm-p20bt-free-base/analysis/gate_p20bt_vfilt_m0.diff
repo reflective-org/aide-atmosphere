@@ -1,0 +1,24 @@
+275a276,277
+>     ap.add_argument("--vfilt-m0", default="", help="alpha,p: damp ZONAL-MEAN (m=0) vector-SH coeffs of (u, v) at every level "
+>                     "by exp(-alpha (l/(lmax-1))^p) each step. An inference-time constraint, not part of the trained model")
+342a345,362
+>     VFILT = None
+>     if a.vfilt_m0:
+>         import torch_harmonics as th
+>         _al, _pp = [float(v) for v in a.vfilt_m0.split(",")]
+>         _VS = th.RealVectorSHT(len(lat), len(ds.lon), grid="legendre-gauss").to(dev)
+>         _IVS = th.InverseRealVectorSHT(len(lat), len(ds.lon), grid="legendre-gauss").to(dev)
+>         _IU = [feats.index(f"u_wind_h{l}") for l in range(95)]; _IV = [feats.index(f"v_wind_h{l}") for l in range(95)]
+>         _FLIP = bool(lat[0] < lat[-1])                                   # torch_harmonics wants north -> south
+>         _ll = torch.arange(_VS.lmax, device=dev, dtype=torch.float64)
+>         _fw = torch.exp(-_al * (_ll / (_VS.lmax - 1)) ** _pp)
+>         def VFILT(o):
+>             ph = o * std + mean; uv = torch.stack([ph[0, _IU], ph[0, _IV]], 1)
+>             uv = uv.flip(-2) if _FLIP else uv
+>             C = _VS(uv.double()); C[..., 0] = C[..., 0] * _fw
+>             r = _IVS(C).float(); r = r.flip(-2) if _FLIP else r
+>             ph = ph.clone(); ph[0, _IU] = r[:, 0]; ph[0, _IV] = r[:, 1]
+>             return (ph - mean) / std
+> 
+389a410
+>                     if VFILT is not None and a.pseudo is None: out = VFILT(out)

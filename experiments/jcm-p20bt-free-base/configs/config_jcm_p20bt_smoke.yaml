@@ -1,0 +1,154 @@
+##############################################################################
+# SMOKE (tiny run, rung 5) of config_jcm_p20bt_free.yaml -- 300 steps, no ckpts.
+# PARADIS on JCM p20bt (jcm-strat phase 19/20b run "p20bt"), T63 L95 hybrid.
+# COPY of config_jcm_free_big_fast.yaml (the recipe that produced epoch=123, the
+# base of every successful fine-tune) with only what the new corpus requires changed:
+#   - corpus /mnt/nvme_stage2/jcm_p20bt_c1 (95 levels, train-only stats 1997-2008)
+#   - analytic forcing = JCMPhysicsP20bt (Jucker T_eq + seasonal k_T, top-level
+#     zonal-anomaly sponge, BL friction), verified vs JAX (test_physics_p20bt.py)
+#   - Gregorian year progress (the corpus is Gregorian; 365.25 is up to 0.75 d off)
+# Same splits as the base (train 1997-2008, val 2009, test 1996/1995) so the
+# numbers are comparable. Free-running: prescribe=false, qbo=false.
+##############################################################################
+model:
+  latent_multiplier: -1
+  latent_size: 1024
+  forecast_steps: 1
+  base_dt: 21600
+  num_layers: 8
+  bias_channels: 4
+  velocity_vectors: 256
+  diffusion_size: 512
+  reaction_size: 256
+  adv_interpolation: bicubic
+  projected_advection: true
+  num_encoder_layers: 1
+  clamp_output: false
+  physical_bounds:
+    temperature: [150, 350]
+  vertical_mixing: true
+  vertical_mixing_hidden_mult: 2
+init:
+  seed: 42
+  checkpoint_path: null
+  restart: false
+dataset:
+  root_dir: /mnt/nvme_stage2/jcm_p20bt_c1
+  time_resolution: 6h
+  n_time_inputs: 2
+  sampling_interval: 6h
+  prediction_delta: 6h
+  gregorian_year_progress: true
+jcm_physics:
+  enabled: true
+  module: p20bt
+  coeff_file: /data/paradis_jcm/jcm_analytic_p20bt.npz
+  # FREE-RUNNING VARIANT: the two truth-dependent terms are off during TRAINING, so the network
+  # must learn to sustain the troposphere and the QBO itself. PK relaxation and the sponge stay
+  # on -- they are closed-form in (lat, p, season) and need no truth, so a deployed model keeps
+  # them. The loss still scores against the NUDGED truth, so the nudge's effect is the target.
+  prescribe: false
+  qbo: false
+
+normalization:
+  standard: false
+compute:
+  num_nodes: 1
+  num_devices: 6          # GPUs 2-7 (0 and 1 are off-limits on this box)
+  accelerator: gpu
+  use_amp: true
+  batch_size: 3          # 6 GPU x 3 x accum 2 = 36, IDENTICAL effective batch and
+                          # identical per-GPU samples/step (6) as batch_size 1 x accum 6
+  num_workers: 12         # MEASURED: 4 workers deliver 4.84 samples/s/rank, BELOW the 11.3
+                          # compute ceiling -- the previous run was dataloader-bound (it hit
+                          # 4.12). 12 -> 15.29 samples/s/rank. 72 procs on 104 cores. Raw NFS
+                          # reads are 2713 MB/s and the 268 GB corpus fits in 1 TB RAM, so the
+                          # worker cost is CPU (decompress+xarray), not the NFS contention that
+                          # wedged this node before.
+  compile: false
+forecast:
+  enable: false
+training:
+  max_epochs: -1
+  max_steps: 300        # 60k x 36 = 2.2M presentations, 4.5x the 15k run
+  progress_bar: false     # the bar floods the log with \r-separated frames
+  gradient_clip_val: 1.0
+  gradient_checkpointing: false   # MEASURED 1.28x (0.1293 -> 0.1010 s/pass). It was
+                                  # trading compute for memory while using 4.5 of 80 GB.
+  accumulate_grad_batches: 2   # 6 GPUs x 3 x 2 = effective batch 36 (unchanged)
+  print_losses: false
+  log_every_n_steps: 10
+  log_dir: /data/paradis_logs
+  experiment_name: jcm_p20bt_smoke
+  curriculum:
+    enabled: false
+    schedule:
+      0: 1
+    loss_weighting: uniform
+  conservation_loss:
+    enabled: false        # built for moist budgets; nothing here is moist
+  dataset:
+    start_date: '1997-01-01T06:00:00'   # 06:00 not 00:00: the 00:00 frame lives in the 1996 (TEST) zarr
+    end_date: '2008-12-31'   # 12 CONTIGUOUS years, ~5 QBO cycles
+    preload: false
+  validation_dataset:
+    start_date: '2009-01-01'
+    end_date: '2009-12-31'
+    preload: false
+    validation_every_n_steps: null
+    validation_batches: null
+  optimizer:
+    lr: 0.0002
+    weight_decay: 0.01
+    beta1: 0.9
+    beta2: 0.95
+  early_stopping:
+    enabled: false
+  loss_function:
+    type: reversed_huber
+    delta_loss: 1.0
+    lat_weights: true
+    validation_loss: null
+    pressure_weight_mode: uniform   # see note at top of features: increments are
+                                    # near-uniformly scaled across the free band
+  checkpointing:
+    enabled: true
+    every_n_train_steps: 100000
+  scheduler:
+    one_cycle:
+      enabled: false
+    reduce_lr:
+      enabled: false
+    wsd:
+      enabled: true
+      warmup: 50
+      decay: 0.2
+  variable_loss_weights:
+    atmospheric:
+      u_wind: 1.0
+      v_wind: 1.0
+      temperature: 1.0
+      omega: 0.1          # diagnostic, and its 6-h increment is 0.7-1.5x its own
+                          # field -- near-unpredictable at this sampling
+    surface:
+      normalized_surface_pressure: 1.0
+  diagnostics:
+    enabled: false
+  reports:
+    enable: false
+features:
+  pressure_levels: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94]
+  base:
+    atmospheric: [u_wind, v_wind, temperature, omega]
+    surface: [normalized_surface_pressure]
+  input:
+    atmospheric: ${features.base.atmospheric}
+    surface: ${features.base.surface}
+    forcings: [sin_year_progress, cos_year_progress]
+    # order matters: the reader asserts 'latitude' sits at [-2] or [-1], and appends the
+    # post-constants in the fixed order lon_spacing, latitude, longitude
+    constants: [geopotential_at_surface, standard_deviation_of_orography,
+                slope_of_sub_gridscale_orography, lon_spacing, latitude, longitude]
+  output:
+    atmospheric: ${features.base.atmospheric}
+    surface: ${features.base.surface}
