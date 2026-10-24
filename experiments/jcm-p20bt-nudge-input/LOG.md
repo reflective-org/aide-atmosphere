@@ -268,3 +268,18 @@ Gate sweep took ~6 h wall (20 ckpts, 10 concurrent). 2-yr free runs from 1995 fo
 - **R4a keeps DT's one-step accuracy (within ~1 point) AND is stable**: rollout repaired stability at no single-step cost.
 - R4b (no single-step stage) is stable but 15-17 points worse in the nudged layers h0-15 and in omega.
 - R4a is the better all-round candidate pending the 2-yr scorecards. Neither is near the 1 % goal (see reframe notes: underfitting, ~steps^-0.3).
+
+### 2026-10-24 23:00 UTC — 2-yr free runs from 1995-01-01 (top 3 per run, filter in-model) — ALL SURVIVE 720 d, NO DRIFT
+| ckpt | VX60N10 corr / SSW (model/truth) | VX60S10 corr | PCT10N / 50N / 10S bias | u bias h16-73 first/last 120 d | T bias first/last |
+|---|---|---|---|---|---|
+| R4a 700 | 0.80 / 4/3 | 0.98 | +2.0 / +0.8 / +2.8 K | 3.91 / 8.87 (drifts) | 1.33 / 3.74 |
+| R4a 900 | 0.88 / 1/3 | 0.96 | +2.0 / +1.3 / +2.0 | 1.72 / 1.62 | 1.21 / 1.30 |
+| **R4a 1000** | **0.93 / 2/3** | 0.99 | +1.1 / +0.5 / +0.5 | **1.66 / 1.73** | **0.50 / 0.80** |
+| R4b 300 | 0.93 / 1/3 | 0.97 | -0.2 / +0.1 / -0.4 | 2.14 / 2.17 | 1.31 / 1.15 |
+| R4b 700 | 0.85 / 4/3 | 0.97 | -0.1 / -0.6 / +3.3 | 3.54 / 1.98 | 1.49 / 1.34 |
+| **R4b 1000** | **0.92 / 3/3** | 0.99 | +0.2 / +0.2 / +0.6 | **1.26 / 1.29** | **0.53 / 0.58** |
+| step-0 D (ref) | 0.88 / 3/3 | — | polar ~1.3 K | 3.4 / 2.0 | 1.5 / 1.7 |
+| D_final (ref) | 0.58 / 4/3 | 0.95 | +3.6 / +3.4 / +11.4 | 4.91 / 10.51 | 3.91 / 7.76 |
+QBO10/30 corr 1.00 everywhere — structural (QBO nudge is an input in option D), not a skill claim.
+**Picks: R4a step 1000** (stable + DT-level one-step accuracy) and **R4b step 1000** (best stratospheric biases). Copied to /data/paradis_jcm/ckpt_R4/.
+Single IC so far; 2 more start dates (1995 day 182, 1996 day 0) running for both picks (logs_dyc/frR4/).
