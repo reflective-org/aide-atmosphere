@@ -195,3 +195,17 @@
 - val_loss by epoch: 0.0171, 0.0215, 0.0115, 0.0119, 0.0113, 0.0163, 0.0129, 0.0100, 0.0100, 0.0078 (still falling at the end).
 - Train-loss means per 1000 steps: 0.0153, 0.0138, 0.0120, 0.0111, 0.0114, 0.0082.
 - Eval (one-step n=200, gate 1996, 2-yr free run + scorecard) is running on 4 checkpoints.
+
+### 2026-10-24 13:30 UTC — DT config bug: the m=0 filter was never in the loop
+- config_jcm_p20bt_DT.yaml put `vfilt_m0: "36,4"` under `jcm_physics:`; trainer reads `cfg.model.vfilt_m0` -> None.
+  **DT trained WITHOUT the filter** (it is tendency-scaled MSE + fp32 only), and the auto-eval (which relied on the config) ran unfiltered.
+- Found by a falsifier: step-0 D through the DT config dies at 17/24 d (2 ICs), whereas with `--vfilt-m0 36,4` it survived 4/4.
+  Direct check (logs_dyc/evalDT_chk/cmp_filter.py): in-model output == unfiltered core (max diff 0.0); gate VFILT differs by 0.73;
+  m=0 l>=40 h94 power core 8.65e-4 vs gate-filtered 1.86e-4 (truth 7.86e-4).
+- Unfiltered DT results (valid as *unfiltered*): gate 1996 all ICs die 13-24 d; 2-yr free runs die 14-20 d — same as unfiltered step-0 (17-24 d).
+- One-step error, last.ckpt, n=200 1996, % of rms 6-h change (unfiltered):
+  u 20.9/21.6/20.4/25.2, v 16.3/15.3/15.6/20.0, T 23.2/19.0/18.7/23.7, omega 26.5/26.0/23.0/29.0 (h0-15/h16-73/h74-93/h94), **ps 27.3** (D_final 90.7).
+  The tendency-scaled loss fixed ps; the other variables moved only a few points vs D.
+- Fix: R4 configs now have the key under `model:`. Filtered re-eval of DT (gate + 2-yr, `--vfilt-m0 36,4`) running: logs_dyc/evalDTf/.
+- R4 tiny probe (1 GPU, K=4, filter in loop, from DT last): forecast_steps logged 4.0; step alignment verified (x[k+1] newest frame == y[k], ERA5 chans from truth);
+  4.26 s/step, peak 51 GB; projected 1000 steps x 5 GPUs ~ 6 GPU-h (estimate).
