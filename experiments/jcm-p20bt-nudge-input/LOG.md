@@ -173,3 +173,11 @@
   - The LightningModule GC hooks stay; they are harmless. Crashed outputs were moved to jcm_p20bt_DT_crash{1,2,3}.
   - Crashed DDP launches also left orphaned workers (23 processes). Clear them with `kill -KILL -- -PGID` before relaunching.
   - **DT relaunched ~11:24 UTC.**
+
+## 2026-10-24 11:50 UTC: D final (step 10.5k) confirms; DT healthy
+
+- **D_final with filter 36,4, 1996:** all 4 die (days 108 / 284 / 186 / 92).
+- **One-step, 200 states:** h16-94 unchanged at 15–26 %; v h0-15 12.8, T h0-15 26.5; **ps 90.7 %**.
+- **D verdict:** the bf16 + berHu + state-std-weighted single-step fine-tune improves h0-15 but degrades ps and free-run
+  stability. Not a candidate.
+- **DT:** past 2 epochs and 2 validations with 0 CUDA errors. 1.04 s/step, loss 0.012–0.022. ETA ~13:10 UTC (~8.7 GPU-h).
