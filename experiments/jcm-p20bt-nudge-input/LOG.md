@@ -283,3 +283,10 @@ Gate sweep took ~6 h wall (20 ckpts, 10 concurrent). 2-yr free runs from 1995 fo
 QBO10/30 corr 1.00 everywhere — structural (QBO nudge is an input in option D), not a skill claim.
 **Picks: R4a step 1000** (stable + DT-level one-step accuracy) and **R4b step 1000** (best stratospheric biases). Copied to /data/paradis_jcm/ckpt_R4/.
 Single IC so far; 2 more start dates (1995 day 182, 1996 day 0) running for both picks (logs_dyc/frR4/).
+
+### 2026-10-24 23:50 UTC — second start date: 2-yr free runs from 1996-01-01 (runs into 1997, a train year — climate stats only)
+| ckpt | VX60N10 corr / SSW | PCT10N / 50N / 10S | u bias first/last 120 d | T bias first/last |
+|---|---|---|---|---|
+| R4a 1000 | 0.92 / 2/2 | +0.5 / +0.4 / +0.4 K | 1.01 / 1.33 m/s | 0.45 / 0.35 K |
+| R4b 1000 | 0.95 / 2/2 | -0.4 / +0.2 / +0.8 K | 1.07 / 0.95 m/s | 0.54 / 0.54 K |
+Both survive, no drift, SSW counts match truth. Result reproduces across start dates. The 1995 day-182 runs overran the 2-yr data window at 720 d (IndexError, frame 2927) and are rerunning at 540 d.
