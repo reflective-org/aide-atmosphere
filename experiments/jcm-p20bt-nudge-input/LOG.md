@@ -209,3 +209,18 @@
 - Fix: R4 configs now have the key under `model:`. Filtered re-eval of DT (gate + 2-yr, `--vfilt-m0 36,4`) running: logs_dyc/evalDTf/.
 - R4 tiny probe (1 GPU, K=4, filter in loop, from DT last): forecast_steps logged 4.0; step alignment verified (x[k+1] newest frame == y[k], ERA5 chans from truth);
   4.26 s/step, peak 51 GB; projected 1000 steps x 5 GPUs ~ 6 GPU-h (estimate).
+
+### 2026-10-24 ~14:00 UTC — DT re-evaluated WITH the m=0 filter (--vfilt-m0 36,4, post hoc; DT was trained without it)
+| ckpt | gate 1996 survival (IC 0/364/728/1092, of 360 d) | 2-yr free run from 1995 |
+|---|---|---|
+| epoch=02 | 77 / 37 / 44 / 27 | died d38 |
+| epoch=05 | 20 / 45 / 43 / 24 | died d21 |
+| epoch=08 | 16 / 32 / 34 / 29 | died d18 |
+| last (6000) | 42 / 78 / 114 / 65 | died d36 |
+| step-0 D (ref) | 360 x4 | survives 720 d |
+
+**Verdict: single-step training breaks free-run stability even with fp32 + tendency-scaled MSE** (same as D). Not a candidate.
+Remedy under test: K=4 rollout with the filter in the loop, two starts, running concurrently on GPUs 2-6 (MASTER_PORT 29611/29622):
+- R4a `jcm_p20bt_DT_R4a`: from DT last (ckpt_D/DT_last.ckpt) — can rollout repair a trained-but-unstable net?
+- R4b `jcm_p20bt_D0_R4`: from step-0 D — skip the single-step stage entirely.
+Both 1000 steps, lr 2e-5, every 100-step checkpoint kept; to be scored on gate + 2-yr free run, not on val loss.
