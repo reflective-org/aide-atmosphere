@@ -237,3 +237,9 @@ perturbing u/v/T in both input frames and measuring u/v/T only. 3 ICs of 1996 ea
 Single-step training raises the leading growth and moves the mode into mid-stratosphere v/u (h16-73 ~0.65 of energy vs ~0.5 for step-0);
 the mode is NOT zonal-mean (m=0 share 0.04), so the m=0 filter cannot touch it. Separates stable from unstable classes, does not rank within a class:
 use as a 3-min screen only. A first variant including omega/ps in the norm did NOT discriminate (1.627 vs 1.619, omega-dominated) — discarded.
+
+### 2026-10-24 15:42 UTC — R4a / R4b training finished (both exit=0, 0 worker CUDA errors)
+- 1000 steps each, concurrent on GPUs 2-6, ~7.1-7.5 s/step (shared), ~2 h wall; ~10 GPU-h combined (estimate: 5 GPUs x 2 h).
+- Train loss (4-step mean, tendency-scaled MSE) at step 999: R4a 0.0134, R4b 0.0185.
+- Growth probe per 100-step checkpoint: R4a 1.029-1.033, R4b 1.029-1.033 (DT 1.052, step-0 1.035). Rollout pulls the leading growth below step-0's.
+- Gate sweep (every checkpoint, 4 ICs x 360 d) + 2-yr runs for top 3 per run: logs_dyc/evalR4/.
