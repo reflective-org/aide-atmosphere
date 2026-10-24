@@ -181,3 +181,10 @@
 - **D verdict:** the bf16 + berHu + state-std-weighted single-step fine-tune improves h0-15 but degrades ps and free-run
   stability. Not a candidate.
 - **DT:** past 2 epochs and 2 validations with 0 CUDA errors. 1.04 s/step, loss 0.012–0.022. ETA ~13:10 UTC (~8.7 GPU-h).
+- **D_final, 2-yr free run from 1995 with filter 36,4** (logs_dyc/frD/Dfinalvf364_scorecard.txt): survives 720 d but
+  **drifts**.
+  - h16-73 u bias 4.9 → 10.5 m/s and T 3.9 → 7.8 K (first vs last 120 d). Step-0 D: 3.4 → 2.0 and 1.5 → 1.7.
+  - VX60N10 corr 0.58 (step-0 0.88); VX60S10 bias −13.6 m/s.
+  - Polar-cap T bias +3.6 / +3.4 / **+11.4 K** (10N / 50N / 10S).
+  - QBO10/30 corr 0.98/0.97 (structural).
+  - D training made the free stratosphere clearly worse.
