@@ -14,6 +14,7 @@ Do not hand-edit them.
 <!-- BEGIN:experiments -->
 | experiment | state | owner | issue | next action |
 | --- | --- | --- | --- | --- |
+| [Option D: p20bt emulator with the ERA5 nudging target as forcing input (toward 1 % of the 6-h change)](experiments/jcm-p20bt-nudge-input/EXPERIMENT.md) | running | shreyas |  | When jcm_p20bt_D finishes, score: (1) one-step error as % of the 6-h change p... |
 | [PARADIS 25M free base on the p20bt (L95, Jucker + Hines) corpus, and why it dies](experiments/jcm-p20bt-free-base/EXPERIMENT.md) | analysis | shreyas |  | Decide how to carry the m=0 damping into training (a fixed m=0 vector-SH filt... |
 | [Boundary-forced arm: levels 9-62 with a replay-year troposphere (run or drop?)](experiments/jcm-boundary-forced/EXPERIMENT.md) | proposed | shreyas | [#8](../../issues/8) | Decide whether to run or drop now that fine-tuning stabilises the full column... |
 | [DAgger round 2 on G300's own drifted states](experiments/jcm-dagger-own-drift/EXPERIMENT.md) | proposed | shreyas | [#2](../../issues/2) | Write the preregistration (falsifier: out-of-sample fraction of the JCM corre... |

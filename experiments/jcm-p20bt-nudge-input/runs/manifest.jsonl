@@ -1,0 +1,2 @@
+{"job_id": "jcm_p20bt_D_smoke", "config_hash": "md5:smoke-copy-of-D", "jcm_sha": "paradis_jcm 4cc8bba+dirty", "machine": "voltagepark", "submitted": "2026-10-24T06:28:32Z", "exit_state": "completed", "gpu_hours": 0.75, "scratch_path": "/data/paradis_logs/lightning_logs/jcm_p20bt_D_smoke"}
+{"job_id": "jcm_p20bt_D", "config_hash": "md5:b24ed3a191dc9102de6c825c8b9f10ae", "jcm_sha": "paradis_jcm 4cc8bba+dirty", "machine": "voltagepark", "submitted": "2026-10-24T06:41:00Z", "seed": 42, "scratch_path": "/data/paradis_logs/lightning_logs/jcm_p20bt_D"}
