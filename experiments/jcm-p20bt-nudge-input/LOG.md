@@ -161,3 +161,15 @@
 - **Launcher bug, also fixed.** `echo "... $(date) exit=$?"` always printed exit=0, because the `$(date)` substitution
   resets `$?`. Launchers now capture `rc=$?` right after train.py. The eval runner refuses to evaluate unless exit=0.
 - **Relaunched** 11:12:51 UTC, config md5 beb75cdc.
+- **Update ~11:25 UTC: the real cause of the DT crash, and the fix.**
+  - `num_sanity_val_steps` alone did not help: the second launch crashed at the sanity pass, and a GC hook in the
+    LightningModule did not help either.
+  - A 5-GPU short-epoch repro with `PYTHONFAULTHANDLER=1` (config_jcm_p20bt_DT_forkrepro5.yaml) crashes every time (44
+    errors, exit 137). Workers die at startup in DataLoader's `_worker_loop` → `torch.manual_seed` →
+    `torch.xpu.manual_seed_all` → `_lazy_call` → `traceback.format_stack`. The allocations there trigger the child's
+    cyclic GC, which frees a CUDA tensor inherited from the parent → abort. Training and val forks are both affected.
+  - **Fix:** `GCFreezeDataLoader` (data/datamodule.py) runs `gc.collect(); gc.freeze()` in `__iter__`, immediately before
+    the fork. The same repro then runs 6 epochs with validation, 0 errors, exit 0. Backups: *.bak_pre_gcfreeze.
+  - The LightningModule GC hooks stay; they are harmless. Crashed outputs were moved to jcm_p20bt_DT_crash{1,2,3}.
+  - Crashed DDP launches also left orphaned workers (23 processes). Clear them with `kill -KILL -- -PGID` before relaunching.
+  - **DT relaunched ~11:24 UTC.**
