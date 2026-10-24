@@ -243,3 +243,16 @@ use as a 3-min screen only. A first variant including omega/ps in the norm did N
 - Train loss (4-step mean, tendency-scaled MSE) at step 999: R4a 0.0134, R4b 0.0185.
 - Growth probe per 100-step checkpoint: R4a 1.029-1.033, R4b 1.029-1.033 (DT 1.052, step-0 1.035). Rollout pulls the leading growth below step-0's.
 - Gate sweep (every checkpoint, 4 ICs x 360 d) + 2-yr runs for top 3 per run: logs_dyc/evalR4/.
+
+### 2026-10-24 21:40 UTC — R4 gate sweep (1996, 4 ICs x 360 d, filter 36,4 in-model, config_jcm_p20bt_R4_eval.yaml)
+**First models in this line that survive a full year on all ICs while matching truth statistics.**
+| run | 4/4 survive 360 d | partial |
+|---|---|---|
+| R4a (from DT last) | steps 900 (vx 0.925), 1000 (vx 0.939) | 700: 3/4; 100-600, 800 die 36-360 d |
+| R4b (from step-0 D) | steps 100, 200, 300 (vx 0.950), 700, 900, 1000 (vx 0.955) | 400/500/600/800 lose 1-3 ICs |
+Step 1000, per IC (model vs truth value in brackets):
+- R4b: sr30 0.98-1.01, sr180 0.97-1.04, vortex corr 0.942/0.963/0.957/0.957, Tprof 0.16-0.21, bias_vs_clim 4.1-4.9 (truth 4.1-4.5), zmV 18-23 (truth 20-24), gmV 9.8-12.3 (truth 9.7-12.2).
+- R4a: vortex corr 0.925/0.938/0.950/0.943, Tprof 0.18-0.27, otherwise similar.
+- Reference: step-0 D (filtered) vortex 0.878/0.940/0.945/0.947; climatology floor 0.727.
+Survival is non-monotone in step (R4b 800 worse than 700 and 900): checkpoint-to-checkpoint noise is large, as in earlier campaigns — pick on multi-IC, multi-year metrics only.
+Gate sweep took ~6 h wall (20 ckpts, 10 concurrent). 2-yr free runs from 1995 for the top 3 of each run are running.
