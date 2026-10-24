@@ -224,3 +224,16 @@ Remedy under test: K=4 rollout with the filter in the loop, two starts, running 
 - R4a `jcm_p20bt_DT_R4a`: from DT last (ckpt_D/DT_last.ckpt) — can rollout repair a trained-but-unstable net?
 - R4b `jcm_p20bt_D0_R4`: from step-0 D — skip the single-step stage entirely.
 Both 1000 steps, lr 2e-5, every 100-step checkpoint kept; to be scored on gate + 2-yr free run, not on val loss.
+
+### 2026-10-24 ~14:40 UTC — cheap linear-stability probe (logs_dyc/evalDT_chk/growth_probe_uvT.py)
+Power iteration (40 its, fixed eps 0.05 normalised, cos-weighted) on the full one-step map (net + physics + in-model filter 36,4),
+perturbing u/v/T in both input frames and measuring u/v/T only. 3 ICs of 1996 each. Growth per 6-h step (mean of last 5 its):
+| ckpt | growth/step | known filtered outcome |
+|---|---|---|
+| step-0 D | 1.035 | 4/4 survive 360 d |
+| D_final | 1.040 | 2-yr survives (gate 4/4 die) |
+| DT epoch=08 | 1.052 | dies 16-34 d |
+| DT last | 1.052 | dies 42-114 d |
+Single-step training raises the leading growth and moves the mode into mid-stratosphere v/u (h16-73 ~0.65 of energy vs ~0.5 for step-0);
+the mode is NOT zonal-mean (m=0 share 0.04), so the m=0 filter cannot touch it. Separates stable from unstable classes, does not rank within a class:
+use as a 3-min screen only. A first variant including omega/ps in the norm did NOT discriminate (1.627 vs 1.619, omega-dominated) — discarded.
