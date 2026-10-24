@@ -147,3 +147,17 @@
     current ~20 % relative network error that is ~2 % at best (estimate). Not pursued.
 - **Bug noted** (frozen gen_pairs.py, not edited): `return_extra=True` and `omega_mode='instant'` use `rs.dycore_state`; the
   attribute is `rs.dynamics`.
+
+## 2026-10-24 ~11:15 UTC: first DT launch crashed at its first validation; fixed and relaunched
+
+- **Crash.** The first DT launch (10:47) died at step ~584, its first validation: `CUDA error: initialization error`.
+  - The C++ stack ends in `c10::TensorImpl::~TensorImpl`, i.e. a forked val DataLoader worker freeing a CUDA tensor, most
+    likely uncollected cyclic garbage inherited at fork.
+  - Workers are persistent: the train workers fork before step 1, but the val workers forked only at the first validation,
+    after the in-loop filter (torch_harmonics) and the fp32 graphs existed. D (bf16, no filter) never hit it.
+  - A 1-GPU short-epoch repro ran 8 epochs cleanly, so the crash needs DDP or is intermittent; the trigger is unconfirmed.
+- **Fix.** `training.num_sanity_val_steps` (train.py; default 0 unchanged) is set to 2 for DT, so the val workers fork at
+  startup before any of that exists. Output of the crashed run moved to jcm_p20bt_DT_crash1 (not deleted).
+- **Launcher bug, also fixed.** `echo "... $(date) exit=$?"` always printed exit=0, because the `$(date)` substitution
+  resets `$?`. Launchers now capture `rc=$?` right after train.py. The eval runner refuses to evaluate unless exit=0.
+- **Relaunched** 11:12:51 UTC, config md5 beb75cdc.
