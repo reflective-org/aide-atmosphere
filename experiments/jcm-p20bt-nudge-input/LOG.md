@@ -114,3 +114,36 @@
 - **DT smoke** (1 GPU, 200 steps, from D epoch 9; tendency MSE + fp32 + m=0 filter 36,4 in the loop): passed. Loss
   0.034 → 0.008–0.02, 1.33 s/step on a shared GPU 6. Projected full DT: 6000 steps × 5 GPUs ≈ 11 GPU-h. Launches when D
   finishes (~13:00 UTC).
+
+## 2026-10-24 10:45 UTC: trained D breaks free runs even with the filter; D stopped; DT launched from step-0 D
+
+- **Epoch 9 of D (~step 5.9k) + filter 36,4, 1996:** all 4 ICs die (days 137 / 48 / 172 / 80); Tprof 5–7 K. The step-0 D
+  model with the same filter survives 4/4 (good) and 2 yr. **D training (bf16, berHu ≈ L1 on state-std errors, 1-step)
+  degrades free-run stability**, alongside the ps regression (32 → 100 %). This matches the earlier finding that more
+  training of this kind degrades multi-year behaviour.
+- **D stopped at step ~10.5k** (epoch 16) to free GPUs. All epoch checkpoints are kept, and last.ckpt is copied to
+  ckpt_D/D_final.ckpt. The post-D eval (one-step 200 states, filtered gate, 2-yr free run) runs on it, queued as
+  logs_dyc/evalD_final.sh.
+- **DT launched 10:47:48 UTC** (config_jcm_p20bt_DT.yaml md5 b06c75c8, snapshot .SNAPSHOT), GPUs 2–6, 6000 steps.
+  - **Warm start from step-0 D**, not trained D.
+  - Tendency-scaled MSE, fp32, m=0 filter 36,4 in the loop.
+
+## dt probe: the p20bt step's own sensitivity to its time step (subagent, dycgen/probe_dt.py)
+
+- **Setup.** Same model, same round-tripped start state (bitwise), 6 states of 1996, only `run.time_step` changed. The
+  dt = 12 sanity row is 0.000 everywhere (bitwise equal to generate()). rms(y_dt − y_12) / rms(6-h change), %:
+
+  | dt | u h0-15/16-73/74-93/94 | v | T | ω (inst) | ps |
+  |---|---|---|---|---|---|
+  | 24 | 12.8 / 11.9 / 5.9 / 8.8 | 9.6 / 9.8 / 4.7 / 9.0 | 12.8 / 9.4 / 6.1 / 10.6 | 61 / 78 / 20 / 22 | 7.7 |
+  | 36 | 26.1 / 20.6 / 10.3 / 15.5 | 19.6 / 17.4 / 8.2 / 15.8 | 25.5 / 16.6 / 10.5 / 18.5 | 108 / 132 / 31 / 34 | 17.2 |
+  | 60 | 53.6 / 33.0 / 18.0 / 27.6 | 40.2 / 28.8 / 13.9 / 26.8 | 49.7 / 28.7 / 17.5 / 31.0 | 173 / 202 / 44 / 50 | 37.5 |
+
+- **Roughly first order in dt.** Warm s/step on a shared GPU: 3.6 (12 min), 2.0 (24), 1.6 (36), 1.0 (60).
+- **Reading.**
+  - The 1 % target is about 10× tighter than the difference between the p20bt step at dt 12 vs 24 min. An emulator meeting
+    it must reproduce the 12-min integration's own time-discretisation error.
+  - A "cheaper numerical step + learned correction" hybrid buys only 2–3.5× speed and leaves a 10–50 % correction. At the
+    current ~20 % relative network error that is ~2 % at best (estimate). Not pursued.
+- **Bug noted** (frozen gen_pairs.py, not edited): `return_extra=True` and `omega_mode='instant'` use `rs.dycore_state`; the
+  attribute is `rs.dynamics`.
