@@ -85,3 +85,32 @@
   - VX60S10 0.98.
   - Polar-cap T bias +1.2 / +1.2 / −1.3 K (10N / 50N / 10S).
   - h16-73 u bias 3.4 → 2.0 m/s and T 1.5 → 1.7 K (first vs last 120 d).
+
+## 2026-10-24 ~10:45 UTC: the 20 % plateau is underfitting; learning curve; T63 test; DT smoke
+
+- **No generalisation gap.** Epoch 9 of D scores the same on train year 2001 and test year 1996: u 19.5/25.1/20.9/24.0 vs
+  19.8/25.4/21.6/25.0, and so on. **The model underfits; more data would not help.**
+- **Overfit, 4 samples, lr 1e-4, 2000 steps:** 26 → 9.3 % and still falling, so it is not floored. 60–90 % of the residual
+  energy is at l ≥ 22, where the 6-h change has 3–25 % of its energy.
+- **T63 truncation test** (t63_truncation_p20bt.py):
+  - T is exactly T63.
+  - u and v carry 1–6 % above T63 (4.5 % even above T65 at h0-15), ω h0-15 48 % and ps 59 %.
+  - Truncating the epoch-9 output only helps T h0-15 (28 → 23 %). The trained model's error lives below T63. **Not a free
+    constraint; dropped.**
+- **Learning curve of the free base** (onestep, 1996, 60 states; % of the 6-h change):
+
+  | epoch (≈ step) | u h16-73 | v h16-73 | T h16-73 | u h0-15 | T h94 | ps |
+  |---|---|---|---|---|---|---|
+  | 3 (1.5k) | 85.0 | 56.5 | 77.8 | 54.8 | 101 | 671 |
+  | 12 (6k) | 51.3 | 34.4 | 45.0 | 38.1 | 52 | 93 |
+  | 30 (15k) | 38.0 | 25.3 | 32.6 | 31.1 | 39 | 93 |
+  | 60 (29k) | 30.8 | 19.8 | 26.9 | 28.3 | 37 | 80 |
+  | 90 (44k) | 28.3 | 17.6 | 23.6 | 27.1 | 35 | 33 |
+  | 123 (60k, after LR decay) | 23.3 | 15.2 | 19.8 | 25.5 | 24 | 136 |
+
+  From 6k to 44k steps the error falls roughly as steps^−0.3. **Extrapolation, not measured:** reaching 1 % at that rate
+  needs ~10⁴× more training, and ~500× even at steps^−0.5. The 1 % goal is **out of reach for this architecture and
+  training regime by orders of magnitude**; it needs a structural change.
+- **DT smoke** (1 GPU, 200 steps, from D epoch 9; tendency MSE + fp32 + m=0 filter 36,4 in the loop): passed. Loss
+  0.034 → 0.008–0.02, 1.33 s/step on a shared GPU 6. Projected full DT: 6000 steps × 5 GPUs ≈ 11 GPU-h. Launches when D
+  finishes (~13:00 UTC).
