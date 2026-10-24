@@ -256,3 +256,15 @@ Step 1000, per IC (model vs truth value in brackets):
 - Reference: step-0 D (filtered) vortex 0.878/0.940/0.945/0.947; climatology floor 0.727.
 Survival is non-monotone in step (R4b 800 worse than 700 and 900): checkpoint-to-checkpoint noise is large, as in earlier campaigns — pick on multi-IC, multi-year metrics only.
 Gate sweep took ~6 h wall (20 ckpts, 10 concurrent). 2-yr free runs from 1995 for the top 3 of each run are running.
+
+### 2026-10-24 ~22:30 UTC — one-step error after rollout (n=200 states of 1996, % of rms 6-h change, filter in-model)
+| var / band | R4b step 1000 | R4a step 1000 | DT last (unfiltered) |
+|---|---|---|---|
+| u h0-15 / h16-73 / h74-93 / h94 | 36.5 / 23.1 / 19.9 / 25.0 | 22.1 / 22.1 / 20.6 / 25.5 | 20.9 / 21.6 / 20.4 / 25.2 |
+| v | 28.6 / 15.4 / 14.8 / 18.4 | 15.9 / 15.5 / 15.8 / 20.6 | 16.3 / 15.3 / 15.6 / 20.0 |
+| T | 40.0 / 19.6 / 18.4 / 24.6 | 23.5 / 19.2 / 18.9 / 24.3 | 23.2 / 19.0 / 18.7 / 23.7 |
+| omega | 42.1 / 37.3 / 23.7 / 29.9 | 27.3 / 27.1 / 23.4 / 29.4 | 26.5 / 26.0 / 23.0 / 29.0 |
+| ps | 30.6 | 26.0 | 27.3 |
+- **R4a keeps DT's one-step accuracy (within ~1 point) AND is stable**: rollout repaired stability at no single-step cost.
+- R4b (no single-step stage) is stable but 15-17 points worse in the nudged layers h0-15 and in omega.
+- R4a is the better all-round candidate pending the 2-yr scorecards. Neither is near the 1 % goal (see reframe notes: underfitting, ~steps^-0.3).
