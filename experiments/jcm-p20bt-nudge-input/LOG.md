@@ -188,3 +188,10 @@
   - Polar-cap T bias +3.6 / +3.4 / **+11.4 K** (10N / 50N / 10S).
   - QBO10/30 corr 0.98/0.97 (structural).
   - D training made the free stratosphere clearly worse.
+
+### 2026-10-24 13:09 UTC — DT training finished (exit=0)
+- jcm_p20bt_DT: tendency-scaled MSE, fp32, in-loop m=0 filter 36,4, warm start from step-0 D; GPUs 2-6, 6000 steps, ~1.04 s/step (~8.7 GPU-h).
+- 0 DataLoader "CUDA initialization error" after the GCFreezeDataLoader fix.
+- val_loss by epoch: 0.0171, 0.0215, 0.0115, 0.0119, 0.0113, 0.0163, 0.0129, 0.0100, 0.0100, 0.0078 (still falling at the end).
+- Train-loss means per 1000 steps: 0.0153, 0.0138, 0.0120, 0.0111, 0.0114, 0.0082.
+- Eval (one-step n=200, gate 1996, 2-yr free run + scorecard) is running on 4 checkpoints.
