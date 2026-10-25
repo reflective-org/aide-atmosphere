@@ -309,3 +309,14 @@ Both survive, no drift, SSW counts match truth. Result reproduces across start d
 - Bug caught: `vfilt_m0` under `jcm_physics:` was silently ignored (DT trained/evaluated unfiltered) — configs now fixed; R4_eval config + falsifier (step-0 D must survive) before any filtered eval.
 - GPU spend: ~65 of 150 GPU-h (estimate).
 - Open next: (b) downstream transport test with R4a winds; longer-horizon (>2 yr) runs need truth beyond the 2-yr window; options B/C; more training steps for one-step accuracy (rollout from R4a).
+
+### 2026-10-25 07:50 UTC — R4a continuation (+3000 K=4 steps from R4a_1000, lr 2e-5), exit=0, ~18 GPU-h (estimate)
+- Gate 1996 (4 ICs x 360 d), 250-step ckpts: 4/4 at 1000, 2500, 3000 (vx 0.953); 2750 3/4; the other 8 lose 1-4 ICs (91-298 d median).
+  **Stability is not preserved monotonically by more rollout training** — most intermediate checkpoints are unstable.
+- 2-yr runs: c3000 survives both (1995: u 1.10/1.17 m/s, T 0.37/0.47 K, VX60N 0.92 SSW 3/3; 1996: u 1.06/1.09, T 0.49/0.37, VX60N 0.94).
+  c2500 1995 survives but biases double (u 2.4, T 1.7); 1996 **dies at d621**.
+- One-step error c3000 vs R4a_1000: u/v/T/omega unchanged within 0.1-0.6 pts; ps 26.0 -> 24.7.
+  **3x more rollout training bought essentially nothing in one-step accuracy** at this lr — a plateau, not the steps^-0.3 slope seen in the base run.
+- c3000 copied to ckpt_R4/R4a_cont3000.ckpt (equal-or-slightly-better strat than R4a_1000; same one-step). R4a_1000 remains the reference pick.
+- Implication: the one-step error is not going to fall with more of the same training. Reaching even ~10 % needs a structural change (capacity/architecture, or a different decomposition), not compute.
+- GPU spend: ~83 of 150 GPU-h (estimate). Stopping autonomous launches here.
