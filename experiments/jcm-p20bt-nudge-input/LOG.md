@@ -290,3 +290,22 @@ Single IC so far; 2 more start dates (1995 day 182, 1996 day 0) running for both
 | R4a 1000 | 0.92 / 2/2 | +0.5 / +0.4 / +0.4 K | 1.01 / 1.33 m/s | 0.45 / 0.35 K |
 | R4b 1000 | 0.95 / 2/2 | -0.4 / +0.2 / +0.8 K | 1.07 / 0.95 m/s | 0.54 / 0.54 K |
 Both survive, no drift, SSW counts match truth. Result reproduces across start dates. The 1995 day-182 runs overran the 2-yr data window at 720 d (IndexError, frame 2927) and are rerunning at 540 d.
+
+### 2026-10-25 — third start date: 540-d free runs from 1995 day 182
+| ckpt | VX60N10 corr / SSW | PCT10N / 50N / 10S | u bias first/last 120 d | T bias first/last |
+|---|---|---|---|---|
+| R4a 1000 | 0.95 / 0/1 | +0.8 / +0.6 / +0.8 K | 1.36 / 1.03 | 0.57 / 0.54 |
+| R4b 1000 | 0.95 / 3/1 | +0.4 / +0.3 / +0.9 K | 1.54 / 1.21 | 0.82 / 0.56 |
+
+## Weekend summary (2026-10-25)
+**Stratospheric free-running dynamics with the nudge in place (option D): SOLVED at the climate-statistics level.**
+- Recipe: tendency-scaled MSE (loss = square of the 1 % metric), fp32, m=0 vector-SH filter 36,4 in-model (`model.vfilt_m0`), K=4 rollout fine-tune (lr 2e-5, 1000 steps, effective batch 30).
+- 3/3 start dates x 2 picks survive 540-720 d with no drift: u bias 1.0-1.7 m/s, T bias 0.35-0.8 K (h16-73), polar caps within ±1 K, vortex corr 0.92-0.95; 4/4 full-year gate ICs.
+  Before: step-0 D u 2-3.4 m/s / T 1.5-1.7 K; D_final drifted to 10.5 m/s / 7.8 K.
+- **Key findings:** (1) single-step training — even fp32 + tendency loss — breaks free-run stability (leading growth 1.035 -> 1.052/step, mode in mid-strat non-zonal v/u, not reachable by the m=0 filter);
+  (2) 100 rollout steps repair it (growth 1.029-1.033); (3) rollout from DT keeps DT's one-step accuracy.
+- **Pick: R4a_1000** (ckpt_R4/R4a_1000.ckpt): one-step u/v/T 15-26 %, omega 23-29 %, ps 26 % of the 6-h change; strat equal to R4b within IC noise. R4b_1000 is the alternative (one-step 15 pts worse in h0-15/omega).
+- **1 % one-step goal: NOT met, and not reachable with this architecture/budget** — error is an underfitting plateau (~steps^-0.3), bf16 is a 3-6 % floor (fixed with fp32), and the dycore itself moves 6-13 % when its own dt is doubled.
+- Bug caught: `vfilt_m0` under `jcm_physics:` was silently ignored (DT trained/evaluated unfiltered) — configs now fixed; R4_eval config + falsifier (step-0 D must survive) before any filtered eval.
+- GPU spend: ~65 of 150 GPU-h (estimate).
+- Open next: (b) downstream transport test with R4a winds; longer-horizon (>2 yr) runs need truth beyond the 2-yr window; options B/C; more training steps for one-step accuracy (rollout from R4a).
