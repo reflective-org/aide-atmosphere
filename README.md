@@ -2,6 +2,10 @@
 
 Experiments with ML emulators of atmospheric models. The first line of work is emulators of JCM (`jcm-strat`, the JAX spectral dry GCM).
 
+**Released models:** [`models/jcm-p2-hl/`](models/jcm-p2-hl/README.md) is the P2@200 stochastic emulator of a
+stratosphere-resolving JCM dycore (T63, 95 levels to 0.01 hPa, 6-h step) that produced the 1997-1998 winds and temperatures
+for the AIDE SAI campaign. It contains inference code, a smoke test and a rollout script; the weights are a release asset.
+
 `experiments/<id>/EXPERIMENT.md` frontmatter is the single source of truth for each experiment. See [`CLAUDE.md`](CLAUDE.md) for the state
 machine and the rules. The cross-experiment status of the JCM work, including every retracted claim, is in
 [`plans/jcm-emulator-survey/`](plans/jcm-emulator-survey/SUMMARY.md).
