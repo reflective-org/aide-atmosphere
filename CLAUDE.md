@@ -26,12 +26,14 @@ experiments/<id>/          # one folder per experiment. Must validate.
   draft.md
 plans/                     # planning documents and cross-experiment surveys
   jcm-emulator-survey/     # status of every JCM emulator line + RETRACTIONS + INVENTORY
+models/<name>/             # released, runnable models: code + README + SHA256SUMS; weights are GitHub release assets
 templates/                 # EXPERIMENT.md template
 tools/                     # validator, README generator
 roster.yaml                # who else is working on adjacent things
 ```
 
-Never commit run output. Logs, checkpoints, `.npz`, `.nc` and zarr stay on the cluster and are referenced by path
+A released model (`models/<name>/`) commits code, README, NOTICE and SHA256SUMS only; its weights and data assets go on a
+GitHub release and are checked against SHA256SUMS. Never commit run output. Logs, checkpoints, `.npz`, `.nc` and zarr stay on the cluster and are referenced by path
 (see `plans/jcm-emulator-survey/INVENTORY.md`). Figures are the exception.
 
 ## States and their gates

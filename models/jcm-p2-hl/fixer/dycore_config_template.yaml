@@ -1,0 +1,151 @@
+# jcm-strat run config of the p20bt dycore the emulator was trained on (identical for every year but YEAR), used by
+# fixer_server.py ONLY to construct the physics terms. Changes vs the run: ERA5 nudging off (needs ERA5 windows; not one of
+# the terms the fixer evaluates), init file removed, terrain/ERA5-reference paths -> release assets (ASSETS, YEAR filled in).
+constants: {}
+physics:
+  vectorize_columns: true
+  checkpoint_terms: true
+  terms:
+    moist_air_state:
+      _target_: jcm.physics.diagnostics.moist_air_state.MoistAirColumnState
+    held_suarez:
+      _target_: jcm_strat.jucker.JuckerColumns
+      p_bd_hpa: 100.0
+      p_hs_hpa: 250.0
+      gamma_k_per_km: 4.0
+      p_tropopause_hpa: 100.0
+      phi0_deg: 50.0
+      delta_phi_deg: 10.0
+      epsilon_k: 10.0
+      season_offset: 0.5
+      p_vortex_top_hpa: 3.0
+      tau_strat_days: 15.0
+      qbo:
+        era5_glob: ASSETS/era5_ref/era5_zm_monthly_*.nc
+        year: YEAR
+        tau_days: 1.0
+        mean_preserving: true
+        lat_full_deg: 15.0
+        lat_zero_deg: 25.0
+        p_bot_hpa: 90.0
+        p_top_hpa: 1.0
+    hines_gwd:
+      _target_: jcm_strat.gwd.HinesGwdLaunch
+      launch_p_hpa: 634.0
+      rms_launch_wind: 1.0
+    lott_miller_sso:
+      _target_: jcm.physics.gravity_waves.sso.LottMillerSso
+    production_tracers:
+      _target_: jcm_strat.advection_tracers.ProductionTracersAoa500
+      aoa500_reset_pressure_hpa: 500.0
+      injection: once
+      first_segment: false
+      pulse_sigma_deg: 12.0
+      pulse_sigma_decades: 0.25
+      source_timescale_days: 90.0
+      surface_sink: false
+      lid_p_hpa: 1.0
+      lid_tau_days: 1.0
+      lid_clock_offset_days: 110.0
+      lid_sink_injections: false
+    omega_diagnostic:
+      _target_: jcm.physics.diagnostics.omega.OmegaDiagnostic
+grid:
+  vertical: hybrid
+  layers: 95
+  spectral_truncation: 63
+  spmd_mesh: null
+dycore:
+  name: dinosaur
+  compute_omega: null
+  advection: null
+  sl_vertical_interpolation: null
+  humidity_mass_fixer: true
+run:
+  time_step: 12
+  save_interval: 0.25
+  total_time: 365
+  end_time: null
+  start_time: 'YEAR-01-01'
+  output_averages: false
+  output: longrun.nc
+  log_level: INFO
+  sponge:
+    levels: 1
+    timescale_h: null
+    enspodi: null
+    damp_temperature: true
+  chunk_days: 10
+  output_prefix: longrun
+  monthly_means: false
+  save_chunks: true
+  snapshot_interval: null
+  snapshot_variables: []
+  checkpoint_path: checkpoint.ckpt
+  archive_ckpt_every: 0
+  bail_on_unhealthy: true
+  mode: full
+  state_file: null
+  tracer_vars: null
+  column:
+    lat_deg: 0.0
+    lon_deg: 0.0
+init:
+  kind: from_state
+  file: null
+  unstamped_scale: null
+terrain:
+  kind: from_file
+  file: ASSETS/terrain_t63.nc
+  interpolate: true
+forcing:
+  kind: default
+  ozone_file: analytic
+  ozone_align: auto
+  emissions_align: auto
+  oxidants_align: auto
+  ozone_persist: strict
+  emissions_persist: strict
+  oxidants_persist: strict
+  emissions_file: auto
+  dms_file: auto
+  dust_file: auto
+  dust_preferential_file: auto
+  dust_soil_types_file: auto
+  dust_regions_file: auto
+  dust_roughness_file: auto
+  oxidants_file: auto
+  prescribed_surface_flux: null
+nudging:
+  enabled: false
+  source: era5
+  tau_hours: 6.0
+  pbl_levels: 0
+  nudge_temperature: true
+  min_pressure_hpa: 400.0
+  freq: 6h
+diffusion:
+  kind: auto
+  scale: 1.0
+  tracer_positivity: auto
+sl_mass_fixer: true
+sl_mass_fixer_exclude:
+- aoa
+- aoa150
+- aoa_sfc
+- aoa500
+- n2o
+- cfc11
+level_table: null
+calendar: gregorian
+output_drop:
+- air_density
+- height_full
+- height_half
+- layer_thickness
+- pressure_full
+- pressure_half
+- pressure_thickness
+- relative_humidity
+- surface_pressure
+health_ignore_q_max: true

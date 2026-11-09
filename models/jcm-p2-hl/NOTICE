@@ -1,0 +1,20 @@
+jcm-p2-hl emulator package
+
+p2emu/model/paradis.py, advection.py, blocks.py and padding.py are derived from PARADIS
+(original code by Stephane Gaudreault et al.), licensed under the Apache License, Version 2.0.
+These files were modified (2025-2026) for this application; the changes are not
+individually marked. A copy of the Apache License 2.0 is at
+https://www.apache.org/licenses/LICENSE-2.0.
+
+p2emu/model/jcm_physics_p20bt.py and the QBO drag in p2emu/emulator.py port analytic terms
+of JCM / jax-gcm (Apache License 2.0) to torch. fixer/ calls jcm-strat
+(https://github.com/reflective-org/jcm-strat) and jax-gcm
+(https://github.com/climate-analytics-lab/jax-gcm), both Apache License 2.0, installed
+separately. fixer/hl_dyc_patch.py patches jcm-strat's QBO term at run time.
+
+terrain_t63.nc (release asset) is bundles/t63/terrain.nc from the Hugging Face dataset
+climate-analytics-lab/jax-gcm-data (revision 2ec867b), licensed CC-BY-4.0, unmodified.
+
+The data assets contain modified Copernicus Climate Change Service information (ERA5).
+Neither the European Commission nor ECMWF is responsible for any use that may be made of the
+Copernicus information or data it contains.

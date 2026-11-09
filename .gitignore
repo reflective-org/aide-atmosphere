@@ -11,3 +11,8 @@ __pycache__/
 *.hdf5
 *.pkl
 *.zarr/
+
+# model weights and release assets are distributed as GitHub release assets, never committed
+*.pt
+*.ckpt
+models/*/assets/
